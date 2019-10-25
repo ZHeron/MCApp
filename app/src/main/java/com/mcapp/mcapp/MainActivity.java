@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cameraBtn.setOnClickListener(this);
         galleryBtn.setOnClickListener(this);
         uploadBtn.setOnClickListener(this);
-
     }
 
     public void photo(View view) throws Exception{

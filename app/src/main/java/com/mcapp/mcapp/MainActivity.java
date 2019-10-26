@@ -49,10 +49,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imgView=findViewById(R.id.imgView_1);
-        cameraBtn=findViewById(R.id.btn_camera);
-        galleryBtn=findViewById(R.id.btn_gallery);
-        uploadBtn=findViewById(R.id.btn_upload);
+        imgView=findViewById(R.id.img_1);
+        cameraBtn=findViewById(R.id.btn_cancel);
+        galleryBtn=findViewById(R.id.btn_cance2);
+        uploadBtn=findViewById(R.id.btn_cance3);
         cameraBtn.setOnClickListener(this);
         galleryBtn.setOnClickListener(this);
         uploadBtn.setOnClickListener(this);
@@ -218,17 +218,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.btn_camera:
+            case R.id.btn_cancel:
                 try {
                     photo(v);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.btn_gallery:
+            case R.id.btn_cance2:
                 gallery();
                 break;
-            case R.id.btn_upload:
+            case R.id.btn_cance3:
                 upload(v);
                 break;
         }

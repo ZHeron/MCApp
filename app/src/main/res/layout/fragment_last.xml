@@ -1,14 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-    <TextView
+    tools:context=".MainActivity">
+    <ImageView
+
+        android:id="@+id/img_2"
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
+        android:background="@drawable/iu"
+        android:scaleType="fitXY"
+        ></ImageView>
+    <LinearLayout
+        android:id="@+id/line2"
+        android:layout_below="@+id/img_2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="我是未知界面"
-        ></TextView>
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        >
 
 
-</LinearLayout>
+        <Button android:id="@+id/btn_cance222"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="相机"
+            style="@style/button_blue_style"
+            android:textSize="40dp"/>
+
+        <Button android:id="@+id/btn_cance223"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="相册"
+            style="@style/button_blue_style"
+            android:textSize="40dp"/>
+
+        <Button
+            android:id="@+id/btn_cance224"
+            style="@style/button_blue_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="上传"
+
+            android:textSize="40dp" />
+
+    </LinearLayout>
+
+    <com.heima.tabview.library.TabView
+        android:layout_below="@+id/line2"
+        android:id="@+id/tabView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></com.heima.tabview.library.TabView>
+</RelativeLayout>

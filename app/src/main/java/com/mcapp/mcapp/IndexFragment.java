@@ -53,6 +53,7 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
     private byte[] fileBuf;
 //    private String uploadUrl = "http://114.55.36.41:8000/upload";
     private String uploadUrl = "http://192.168.1.103:8000/index/upload";
+//    private String uploadUrl = "http://192.168.43.2:8000/index/upload";
     public static IndexFragment newInstance(String text) {
         IndexFragment fragmentCommon = new IndexFragment();
         Bundle bundle = new Bundle();

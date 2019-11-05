@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.heima.tabview.library.TabView;
 import com.heima.tabview.library.TabViewChild;
+import com.mcapp.mcapp.model.Photo;
+import com.mcapp.mcapp.utils.SourceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +31,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //首先去请求图片列表数据
+        SourceUtil.getImageList();
         tabView = findViewById(R.id.tabView);
         indexFrag = IndexFragment.newInstance("首页");
         listFrag = ListFragment.newInstance("列表");
-        lastFrag = LastFragment.newInstance("未知");
+        lastFrag = LastFragment.newInstance("识别");
         tabViewChildList = new ArrayList<>();
         TabViewChild tabViewChild01 = new TabViewChild(R.drawable.tab01_sel, R.drawable.tab01_unsel, "首页", indexFrag);
-        TabViewChild tabViewChild02 = new TabViewChild(R.drawable.tab02_sel, R.drawable.tab02_unsel, "列表", listFrag);
-        TabViewChild tabViewChild03 = new TabViewChild(R.drawable.tab03_sel, R.drawable.tab03_unsel, "未知", lastFrag);
+        TabViewChild tabViewChild02 = new TabViewChild(R.drawable.tab03_sel, R.drawable.tab03_unsel, "列表", listFrag);
+        TabViewChild tabViewChild03 = new TabViewChild(R.drawable.tab02_sel, R.drawable.tab02_unsel, "识别", lastFrag);
 
         tabViewChildList.add(tabViewChild01);
         tabViewChildList.add(tabViewChild02);
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 //        tabView.setTabViewDefaultPosition(2);
     }
 
-    public void jump(Integer Img) {
+    public void jump(Photo Img) {
         lastFrag.setImg(Img);
 //        //删除所有add的fragment
         FragmentTransaction transaction =fragmentManager
@@ -70,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.remove(listFrag).commitNow();
         tabView.setTabViewDefaultPosition(2);
         tabView.setTabViewChild(tabViewChildList,fragmentManager);
-
-
     }
 
 }

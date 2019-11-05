@@ -1,7 +1,6 @@
 package com.mcapp.mcapp;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +25,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.mcapp.mcapp.constant.URL;
+import com.mcapp.mcapp.utils.SourceUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -51,9 +53,7 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
     private Button uploadBtn;
     private String uploadFileName;
     private byte[] fileBuf;
-//    private String uploadUrl = "http://114.55.36.41:8000/upload";
-    private String uploadUrl = "http://192.168.1.103:8000/index/upload";
-//    private String uploadUrl = "http://192.168.43.2:8000/index/upload";
+    private String uploadUrl = URL.uploadUrl;
     public static IndexFragment newInstance(String text) {
         IndexFragment fragmentCommon = new IndexFragment();
         Bundle bundle = new Bundle();
@@ -221,10 +221,21 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
 
                 try {
                     Response response = client.newCall(request).execute();
+                    //更新列表数据
+                    SourceUtil.getImageList();
+                    FragmentManager fragmentManager=getActivity().getSupportFragmentManager();
+                    for(int i=0;i<fragmentManager.getFragments().size();i++){
+                        if(fragmentManager.getFragments().get(i).getArguments()!=null){
+                            String a= (String) fragmentManager.getFragments().get(i).getArguments().get("text");
+                            if(a=="列表"){
+                                ListFragment listFragment= (ListFragment) fragmentManager.getFragments().get(i);
+                                listFragment.updateData();
+                            }
+                        }
+                    }
                     Looper.prepare();
                     Toast.makeText(getActivity(), "上传成功！", Toast.LENGTH_SHORT).show();
                     Looper.loop();
-                    Log.i("数据", response.body().string() + "....");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

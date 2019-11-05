@@ -1,6 +1,9 @@
 package com.mcapp.mcapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -17,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mcapp.mcapp.adapter.ImageAdapter;
+import com.mcapp.mcapp.model.MyViewData;
 import com.mcapp.mcapp.model.Photo;
 import com.mcapp.mcapp.utils.PhotoLoader;
 import com.mcapp.mcapp.utils.SourceUtil;
@@ -26,8 +30,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import indi.liyi.viewer.ImageDrawee;
@@ -43,7 +50,6 @@ import okhttp3.Response;
 
 
 public class ListFragment extends Fragment {
-    List<Photo> photos;
     private int[] images;
     private ImageViewer imageViewer;
     private RecyclerView recyclerView;
@@ -51,7 +57,7 @@ public class ListFragment extends Fragment {
     private ImageAdapter adapter;
 
     private Point mScreenSize;
-    private List<Integer> mImgList;
+//    private List<byte[]> mImgList=new ArrayList<>();
     private List<Photo> photosList;
     private List<ViewData> mVdList;
     private int mStatusBarHeight;
@@ -78,8 +84,8 @@ public class ListFragment extends Fragment {
         linearManager = new LinearLayoutManager(getContext());
         linearManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearManager);
-        adapter = new ImageAdapter(1);
-        adapter.setData(mImgList);
+        adapter = new ImageAdapter();
+        adapter.setData(photosList);
 
         imageViewer.overlayStatusBar(false).viewData(mVdList) // 数据源
                 .imageLoader(new PhotoLoader())
@@ -91,61 +97,19 @@ public class ListFragment extends Fragment {
         return view;
     }
 
-    public void getImages() {
-        new Thread(){
-            @Override
-            public void run() {
-                OkHttpClient client = new OkHttpClient();
-//        String listUrl = "http://114.55.36.41:8000/list";
-                String listUrl = "http://192.168.1.103:8000/index/list";
-//        listUrl = "http://192.168.43.2:8000/index/list";
-                final Request request = new Request.Builder()
-                        //这不是刚刚的百度域名所在的变量嘛
-                        .url(listUrl)
-                        .build();
-                try {
-                    Response response = client.newCall(request).execute();
-                    String responseData=response.body().string();
-                    JSONArray jsonArray= null;
-                    try {
-                        jsonArray = new JSONArray(responseData);
-                        for(int i=0;i<jsonArray.length();i++)
-                        {
-                            Photo photo=new Photo();
-                            JSONObject jsonObject=jsonArray.getJSONObject(i);
-                            photo.setId(jsonObject.getString("_id"));
-                            photo.setName(jsonObject.getString("name"));
-                            photo.setContent(jsonObject.getString("content"));
-                            photo.setCreateTime(jsonObject.getInt("createTime"));
-                            //将字符串base64转byte[]
-                            byte[] imageByte= Base64.decode(photo.getContent(),Base64.DEFAULT);
-                            photo.setImagesByte(imageByte);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-    }
 
     private void initData() {
-        getImages();
         mScreenSize = Utils.getScreenSize(getContext());
         mStatusBarHeight = Utils.getStatusBarHeight(getContext());
-
-
-        mImgList = SourceUtil.getImageList();
-
+        photosList=SourceUtil.photos;
         mVdList = new ArrayList<>();
-        for (int i = 0, len = mImgList.size(); i < len; i++) {
-            ViewData viewData = new ViewData();
-            viewData.setImageSrc(mImgList.get(i));
+        for (int i = 0; i < photosList.size(); i++) {
+            MyViewData viewData = new MyViewData();
+            viewData.setImageSrc(photosList.get(i).getImagesByte());
             viewData.setTargetX(Utils.dp2px(getContext(), 10));
             viewData.setTargetWidth(mScreenSize.x - Utils.dp2px(getContext(), 20));
             viewData.setTargetHeight(Utils.dp2px(getContext(), 200));
+            viewData.setId(photosList.get(i).getId());
             mVdList.add(viewData);
         }
     }
@@ -154,6 +118,20 @@ public class ListFragment extends Fragment {
         adapter.setOnItemClickCallback(new ImageAdapter.OnItemClickCallback() {
             @Override
             public void onItemClick(int position, ImageView view) {
+                //处理更新数据慢异常
+                if(mVdList!=null&&mVdList.size()!=0){
+                    mVdList.clear();
+                }
+                for (int i = 0; i < photosList.size(); i++) {
+                    MyViewData viewData = new MyViewData();
+                    viewData.setImageSrc(photosList.get(i).getImagesByte());
+                    viewData.setTargetX(Utils.dp2px(getContext(), 10));
+                    viewData.setTargetWidth(mScreenSize.x - Utils.dp2px(getContext(), 20));
+                    viewData.setTargetHeight(Utils.dp2px(getContext(), 200));
+                    viewData.setId(photosList.get(i).getId());
+                    mVdList.add(viewData);
+                }
+
                 int[] location = new int[2];
                 // 获取在整个屏幕内的绝对坐标
                 view.getLocationOnScreen(location);
@@ -166,6 +144,14 @@ public class ListFragment extends Fragment {
                         .watch(position);
 
 
+            }
+        });
+
+        adapter.setOnItemLongClickCallback(new ImageAdapter.OnItemLongClickCallback(){
+            @Override
+            public void onItemLongClick(int position, ImageView view) {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.jump(photosList.get(position));
             }
         });
 
@@ -187,7 +173,7 @@ public class ListFragment extends Fragment {
             public boolean onItemLongPress(int position, ImageView imageView) {
                 Log.d("LongPress", "" + position);
                 MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.jump(mImgList.get(position));
+                mainActivity.jump(photosList.get(position));
                 return true;
             }
         });
@@ -212,7 +198,7 @@ public class ListFragment extends Fragment {
                 th1 += Utils.dp2px(getContext(), 210);
             }
             // 计算当前图片下方所有 Item 的总高度
-            for (int i = position + 1; i < mImgList.size(); i++) {
+            for (int i = position + 1; i < photosList.size(); i++) {
                 // Utils.dp2px(this, 210) 是 Item 的高度
                 th2 += Utils.dp2px(getContext(), 210);
             }
@@ -227,5 +213,30 @@ public class ListFragment extends Fragment {
         return 0;
     }
 
+
+    public void updateData(){
+        photosList=SourceUtil.photos;
+        adapter.notifyDataSetChanged();
+        if(mVdList!=null&&mVdList.size()!=0){
+            mVdList.clear();
+        }
+        for (int i = 0; i < photosList.size(); i++) {
+            MyViewData viewData = new MyViewData();
+            viewData.setImageSrc(photosList.get(i).getImagesByte());
+            viewData.setTargetX(Utils.dp2px(getContext(), 10));
+            viewData.setTargetWidth(mScreenSize.x - Utils.dp2px(getContext(), 20));
+            viewData.setTargetHeight(Utils.dp2px(getContext(), 200));
+            viewData.setId(photosList.get(i).getId());
+            mVdList.add(viewData);
+        }
+        imageViewer.overlayStatusBar(false).viewData(mVdList) // 数据源
+                .imageLoader(new PhotoLoader())
+                .playEnterAnim(true) // 是否开启进场动画，默认为true
+                .playExitAnim(true) // 是否开启退场动画，默认为true
+                .showIndex(true); // 是否显示图片索引，默认为true
+
+        addListener();
+
+    }
 
 }

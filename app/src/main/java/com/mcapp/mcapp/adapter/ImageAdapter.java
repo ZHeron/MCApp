@@ -1,6 +1,10 @@
 package com.mcapp.mcapp.adapter;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,22 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mcapp.mcapp.R;
+import com.mcapp.mcapp.model.Photo;
 import com.mcapp.mcapp.utils.GlideUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class ImageAdapter extends RecyclerView.Adapter {
-    // 0: 水平方向  1: 垂直方向
-    private int mOrientation;
-    private List<Integer> mImgList;
+//    private List<byte[]> mImgList=new ArrayList<>();
+    private List<Photo> mImgList=new ArrayList<>();
     private OnItemClickCallback mCallback;
+    private OnItemLongClickCallback mLongCallback;
 
-    public ImageAdapter(int orientation) {
-        mOrientation = orientation;
+    public ImageAdapter() {
     }
 
-    public void setData(List<Integer> list) {
+    public void setData(List<Photo> list) {
         this.mImgList = list;
     }
 
@@ -40,7 +45,8 @@ public class ImageAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final ItemHolder itemHolder = (ItemHolder) holder;
-        GlideUtil.loadImage(itemHolder.iv_pic.getContext(), mImgList.get(position), itemHolder.iv_pic);
+
+        GlideUtil.loadImage(itemHolder.iv_pic.getContext(), mImgList.get(position).getImagesByte(), itemHolder.iv_pic);
         final int fp = position;
         itemHolder.iv_pic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +54,15 @@ public class ImageAdapter extends RecyclerView.Adapter {
                 if (mCallback != null) {
                     mCallback.onItemClick(fp, itemHolder.iv_pic);
                 }
+            }
+        });
+        itemHolder.iv_pic.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mLongCallback != null) {
+                    mLongCallback.onItemLongClick(fp, itemHolder.iv_pic);
+                }
+                return true;
             }
         });
     }
@@ -69,8 +84,14 @@ public class ImageAdapter extends RecyclerView.Adapter {
     public void setOnItemClickCallback(OnItemClickCallback clickCallback) {
         this.mCallback = clickCallback;
     }
+    public void setOnItemLongClickCallback(OnItemLongClickCallback clickLongCallback) {
+        this.mLongCallback = clickLongCallback;
+    }
 
     public interface OnItemClickCallback {
         void onItemClick(int position, ImageView view);
+    }
+    public interface OnItemLongClickCallback {
+        void onItemLongClick(int position, ImageView view);
     }
 }

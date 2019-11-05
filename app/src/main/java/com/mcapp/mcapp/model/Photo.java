@@ -7,7 +7,6 @@ public class Photo implements Serializable {
    private String name;
    private String content;
    private int createTime;
-   private int images;
    private byte[] imagesByte;
 
     public byte[] getImagesByte() {
@@ -16,14 +15,6 @@ public class Photo implements Serializable {
 
     public void setImagesByte(byte[] imagesByte) {
         this.imagesByte = imagesByte;
-    }
-
-    public int getImages() {
-        return images;
-    }
-
-    public void setImages(int images) {
-        this.images = images;
     }
 
     public String getId() {

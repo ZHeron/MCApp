@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //首先去请求图片列表数据
         SourceUtil.getImageList();
+        SourceUtil.getTokens();
         tabView = findViewById(R.id.tabView);
         indexFrag = IndexFragment.newInstance("首页");
         listFrag = ListFragment.newInstance("列表");

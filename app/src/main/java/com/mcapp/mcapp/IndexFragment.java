@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -239,6 +240,7 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
                     String id=jsonObject.getString("id");
                     Photo p=new Photo();
                     p.setImagesByte(fileBuf);
+                    p.setContent(Base64.encodeToString(fileBuf,Base64.DEFAULT));
                     p.setName("IMG"+id);
                     p.setId(id);
                     boolean flag=true;

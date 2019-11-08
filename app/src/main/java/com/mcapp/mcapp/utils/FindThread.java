@@ -218,7 +218,7 @@ public class FindThread extends Thread {
                     if (findType == 0) {
                         if (jsonObject.get("error_msg").equals("SUCCESS")) {
                             markFace(jsonObject);
-                        } else if (jsonObject.get("error_msg").equals("pic not has face_add")) {
+                        } else if (jsonObject.get("error_msg").equals("pic not has face")) {
                             faceFragment.makeToast("没有识别到人脸!");
                         } else if(jsonObject.get("error_msg").equals("timeout")){
                             faceFragment.makeToast("请求超时，请稍后重试！");

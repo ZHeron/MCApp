@@ -234,8 +234,10 @@ public class ListFragment extends Fragment {
     //添加图片
     public void addPhoto(Photo p) {
 //        photosList=SourceUtil.photos;
-        //本地删除
+        //本地增加
         photosList.add(p);
+        //Source增加
+        SourceUtil.setPhotos(photosList);
         adapter.notifyDataSetChanged();
         if (mVdList != null && mVdList.size() != 0) {
             mVdList.clear();

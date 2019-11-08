@@ -66,7 +66,6 @@ public class SourceUtil {
             }
         }.start();
     }
-
     public static void getGroupList() {
         new Thread() {
             @Override
@@ -184,5 +183,8 @@ public class SourceUtil {
             }
         }.start();
 
+    }
+    public static void setPhotos(List<Photo> photos) {
+        SourceUtil.photos = photos;
     }
 }

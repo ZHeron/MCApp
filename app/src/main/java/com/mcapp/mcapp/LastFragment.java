@@ -43,10 +43,8 @@ import okhttp3.Response;
 public class LastFragment extends Fragment implements View.OnClickListener {
     private ImageView imageView;
     private Photo photo;
-    private Button btnFace;
     private Button btnAnimal;
     private Button btnPlant;
-    private Button btnCar;
     private static final int COMPLETED = 0;
     private Handler handler = new Handler(){
         @Override
@@ -77,14 +75,10 @@ public class LastFragment extends Fragment implements View.OnClickListener {
             Bitmap decodedByte = BitmapFactory.decodeByteArray(photo.getImagesByte(), 0, photo.getImagesByte().length);
             imageView.setImageBitmap(decodedByte);
         }
-        btnFace = view.findViewById(R.id.btn__FaceFind);
         btnAnimal = view.findViewById(R.id.btn_AnimalFind);
         btnPlant = view.findViewById(R.id.btn_PlantFind);
-        btnCar = view.findViewById(R.id.btn_Delete);
-        btnFace.setOnClickListener(this);
         btnAnimal.setOnClickListener(this);
         btnPlant.setOnClickListener(this);
-        btnCar.setOnClickListener(this);
 
         return view;
     }
@@ -118,55 +112,55 @@ public class LastFragment extends Fragment implements View.OnClickListener {
     }
 
     public void deletPhoto() {
-        if (photo == null) {
-            Toast.makeText(getActivity(), "请先选择图片!", Toast.LENGTH_SHORT);
-        } else {
-            new Thread() {
-                @Override
-                public void run() {
-                    OkHttpClient client = new OkHttpClient();
-                    String deleteUrl = URL.deleteUrl;
-                    RequestBody requestBody = new FormBody
-                            .Builder()
-                            .add("id", photo.getId())
-                            .build();
-                    final Request request = new Request.Builder()
-                            .url(URL.deleteUrl)
-                            .post(requestBody)
-                            .build();
-                    Response response = null;
-                    //发起请求
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            makeToast("删除失败!");
-                        }
-                        @Override
-                        public void onResponse(Call call, Response response) {
-                            //获得返回response.body()
-                            //清空图片框显示
-                            Message message = new Message();
-                            message.what = COMPLETED;
-                            handler.sendMessage(message);
-                            //更新列表数据
-                            SourceUtil.getImageList();
-                            FragmentManager fragmentManager=getActivity().getSupportFragmentManager();
-                            for(int i=0;i<fragmentManager.getFragments().size();i++){
-                                if(fragmentManager.getFragments().get(i).getArguments()!=null){
-                                    String a= (String) fragmentManager.getFragments().get(i).getArguments().get("text");
-                                    if(a=="列表"){
-                                        ListFragment listFragment= (ListFragment) fragmentManager.getFragments().get(i);
-                                        listFragment.updateData();
-                                    }
-                                }
-                            }
-                            makeToast("删除成功!");
-                        }
-                    });
-
-                }
-            }.start();
-        }
+//        if (photo == null) {
+//            Toast.makeText(getActivity(), "请先选择图片!", Toast.LENGTH_SHORT);
+//        } else {
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    OkHttpClient client = new OkHttpClient();
+//                    String deleteUrl = URL.deleteUrl;
+//                    RequestBody requestBody = new FormBody
+//                            .Builder()
+//                            .add("id", photo.getId())
+//                            .build();
+//                    final Request request = new Request.Builder()
+//                            .url(URL.deleteUrl)
+//                            .post(requestBody)
+//                            .build();
+//                    Response response = null;
+//                    //发起请求
+//                    client.newCall(request).enqueue(new Callback() {
+//                        @Override
+//                        public void onFailure(Call call, IOException e) {
+//                            makeToast("删除失败!");
+//                        }
+//                        @Override
+//                        public void onResponse(Call call, Response response) {
+//                            //获得返回response.body()
+//                            //清空图片框显示
+//                            Message message = new Message();
+//                            message.what = COMPLETED;
+//                            handler.sendMessage(message);
+//                            //更新列表数据
+//                            SourceUtil.getImageList();
+//                            FragmentManager fragmentManager=getActivity().getSupportFragmentManager();
+//                            for(int i=0;i<fragmentManager.getFragments().size();i++){
+//                                if(fragmentManager.getFragments().get(i).getArguments()!=null){
+//                                    String a= (String) fragmentManager.getFragments().get(i).getArguments().get("text");
+//                                    if(a=="列表"){
+//                                        ListFragment listFragment= (ListFragment) fragmentManager.getFragments().get(i);
+//                                        listFragment.updateData("id");
+//                                    }
+//                                }
+//                            }
+//                            makeToast("删除成功!");
+//                        }
+//                    });
+//
+//                }
+//            }.start();
+//        }
     }
 
 
@@ -177,17 +171,11 @@ public class LastFragment extends Fragment implements View.OnClickListener {
             return;
         }
         switch (v.getId()) {
-            case R.id.btn__FaceFind:
-                new FindThread(photo.getImagesByte(), 0, this).start();
-                break;
             case R.id.btn_AnimalFind:
                 new FindThread(photo.getImagesByte(), 1, this).start();
                 break;
             case R.id.btn_PlantFind:
                 new FindThread(photo.getImagesByte(), 2, this).start();
-                break;
-            case R.id.btn_Delete:
-                deletPhoto();
                 break;
         }
     }

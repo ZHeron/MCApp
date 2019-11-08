@@ -21,4 +21,14 @@ public class URL {
     public final static String findUrl = "http://114.55.36.41:8000/find";
 //    public final static String findUrl = "http://192.168.1.103:8000/find";
 //    public final static String findUrl = "http://192.168.43.2:8000/find";
+
+    //识别
+    public final static String faceAddUrl = "http://114.55.36.41:8000/face";
+//    public final static String faceAddUrl = "http://192.168.1.103:8000/face";
+//    public final static String faceAddUrl = "http://192.168.43.2:8000/face";
+
+    //识别
+//    public final static String faceGroupUrl = "http://114.55.36.41:8000/face/group";
+    public final static String faceGroupUrl = "http://192.168.1.103:8000/face/group";
+//    public final static String faceGroupUrl = "http://192.168.43.2:8000/face/group";
 }

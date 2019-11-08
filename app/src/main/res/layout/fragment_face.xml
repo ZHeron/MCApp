@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <ImageView
+
+        android:id="@+id/img_3"
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
+        android:background="@drawable/iu"
+        android:scaleType="fitXY"
+        ></ImageView>
+    <LinearLayout
+        android:id="@+id/line3"
+        android:layout_below="@+id/img_3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="10dp"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/linearButton1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <Button android:id="@+id/btn_FaceAdd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="人脸添加"
+            style="@style/button_blue_style2"
+            android:textSize="30sp"/>
+
+        <Button android:id="@+id/btn_FaceSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="人脸识别"
+            style="@style/button_blue_style2"
+            android:textSize="30sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_FaceFind"
+            style="@style/button_blue_style2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="人脸检测"
+            android:textSize="30sp" />
+        <Button
+            android:id="@+id/btn_more"
+            android:visibility="invisible"
+            style="@style/button_blue_style2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="样式"
+            android:textSize="30sp" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

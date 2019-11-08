@@ -13,31 +13,14 @@
         android:background="@drawable/iu"
         android:scaleType="fitXY"
         ></ImageView>
-    <LinearLayout
-        android:id="@+id/line2"
-        android:layout_below="@+id/img_2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginBottom="0dp"
-        android:layout_marginTop="10dp"
-        >
 
         <LinearLayout
             android:orientation="horizontal"
+            android:layout_below="@id/img_2"
             android:id="@+id/linearButton1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <Button android:id="@+id/btn__FaceFind"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
-            android:text="人脸识别"
-            style="@style/button_blue_style2"
-            android:textSize="30sp"/>
-
+            android:layout_marginTop="10dp">
         <Button android:id="@+id/btn_AnimalFind"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -47,13 +30,6 @@
             android:text="动物识别"
             style="@style/button_blue_style2"
             android:textSize="30sp"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
         <Button
             android:id="@+id/btn_PlantFind"
             style="@style/button_blue_style2"
@@ -64,22 +40,5 @@
             android:layout_weight="1"
             android:text="植物识别"
             android:textSize="30sp" />
-        <Button
-            android:id="@+id/btn_Delete"
-            style="@style/button_blue_style2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
-            android:text="删除"
-            android:textSize="30sp" />
-        </LinearLayout>
     </LinearLayout>
-
-    <com.heima.tabview.library.TabView
-        android:layout_below="@+id/line2"
-        android:id="@+id/tabView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></com.heima.tabview.library.TabView>
 </RelativeLayout>

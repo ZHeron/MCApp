@@ -24,6 +24,7 @@ import okhttp3.Response;
 
 public class SourceUtil {
     public static List<Photo> photos = new ArrayList<>();
+    public static List<String> groups = new ArrayList<>() ;
     public static String FaceToken;
     public static String OauthToken;
     public static void getImageList() {
@@ -66,7 +67,34 @@ public class SourceUtil {
         }.start();
     }
 
-
+    public static void getGroupList() {
+        new Thread() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                String listUrl = URL.faceGroupUrl;
+                final Request request = new Request.Builder()
+                        .url(listUrl)
+                        .build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    String responseData = response.body().string();
+                    JSONArray jsonArray = new JSONArray(responseData);
+                    //防止重复刷新数据
+                    groups.clear();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        groups.add(jsonArray.getString(i));
+                    }
+                    Log.d("获取用户组", "成功");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
     public static void getTokens() {
         //获取人脸识别token
         new Thread() {

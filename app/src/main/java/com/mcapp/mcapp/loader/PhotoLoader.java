@@ -1,4 +1,4 @@
-package com.mcapp.mcapp.utils;
+package com.mcapp.mcapp.loader;
 
 import android.widget.ImageView;
 

@@ -1,40 +1,32 @@
 package com.mcapp.mcapp;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Base64;
+import android.os.Looper;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mcapp.mcapp.adapter.ImageAdapter;
+import com.mcapp.mcapp.constant.URL;
 import com.mcapp.mcapp.model.MyViewData;
 import com.mcapp.mcapp.model.Photo;
-import com.mcapp.mcapp.utils.PhotoLoader;
+import com.mcapp.mcapp.loader.PhotoLoader;
 import com.mcapp.mcapp.utils.SourceUtil;
 import com.mcapp.mcapp.utils.Utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import indi.liyi.viewer.ImageDrawee;
@@ -44,8 +36,11 @@ import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemLongPressListener;
 import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
@@ -57,7 +52,7 @@ public class ListFragment extends Fragment {
     private ImageAdapter adapter;
 
     private Point mScreenSize;
-//    private List<byte[]> mImgList=new ArrayList<>();
+    //    private List<byte[]> mImgList=new ArrayList<>();
     private List<Photo> photosList;
     private List<ViewData> mVdList;
     private int mStatusBarHeight;
@@ -80,6 +75,19 @@ public class ListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
 
         initData();
+        linearManager = new LinearLayoutManager(getContext());
+//        linearManager.setStackFromEnd(true);
+        linearManager.setOrientation(LinearLayoutManager.VERTICAL);
+        linearManager.setReverseLayout(false);
+        recyclerView.setLayoutManager(linearManager);
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.top = 2;
+                outRect.bottom = 2;
+            }
+        });
 
         linearManager = new LinearLayoutManager(getContext());
         linearManager.setStackFromEnd(true);
@@ -101,7 +109,7 @@ public class ListFragment extends Fragment {
     private void initData() {
         mScreenSize = Utils.getScreenSize(getContext());
         mStatusBarHeight = Utils.getStatusBarHeight(getContext());
-        photosList=SourceUtil.photos;
+        photosList = SourceUtil.photos;
         mVdList = new ArrayList<>();
         for (int i = 0; i < photosList.size(); i++) {
             MyViewData viewData = new MyViewData();
@@ -119,7 +127,7 @@ public class ListFragment extends Fragment {
             @Override
             public void onItemClick(int position, ImageView view) {
                 //处理更新数据慢异常
-                if(mVdList!=null&&mVdList.size()!=0){
+                if (mVdList != null && mVdList.size() != 0) {
                     mVdList.clear();
                 }
                 for (int i = 0; i < photosList.size(); i++) {
@@ -147,11 +155,11 @@ public class ListFragment extends Fragment {
             }
         });
 
-        adapter.setOnItemLongClickCallback(new ImageAdapter.OnItemLongClickCallback(){
+        adapter.setOnItemLongClickCallback(new ImageAdapter.OnItemLongClickCallback() {
             @Override
             public void onItemLongClick(int position, ImageView view) {
                 MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.jump(photosList.get(position));
+                mainActivity.jump(photosList.get(position),"last");
             }
         });
 
@@ -168,15 +176,15 @@ public class ListFragment extends Fragment {
                 }
             }
         });
-        imageViewer.setOnItemLongPressListener(new OnItemLongPressListener() {
-            @Override
-            public boolean onItemLongPress(int position, ImageView imageView) {
-                Log.d("LongPress", "" + position);
-                MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.jump(photosList.get(position));
-                return true;
-            }
-        });
+//        imageViewer.setOnItemLongPressListener(new OnItemLongPressListener() {
+//            @Override
+//            public boolean onItemLongPress(int position, ImageView imageView) {
+//                Log.d("LongPress", "" + position);
+//                MainActivity mainActivity = (MainActivity) getActivity();
+//                mainActivity.jump(photosList.get(position),"last");
+//                return true;
+//            }
+//        });
 
     }
 
@@ -212,12 +220,24 @@ public class ListFragment extends Fragment {
         }
         return 0;
     }
-
-
-    public void updateData(){
-        photosList=SourceUtil.photos;
+    //toast信息
+    public void makeToast(final String s) {
+        new Thread() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+                Looper.loop();
+            }
+        }.start();
+    }
+    //添加图片
+    public void addPhoto(Photo p) {
+//        photosList=SourceUtil.photos;
+        //本地删除
+        photosList.add(p);
         adapter.notifyDataSetChanged();
-        if(mVdList!=null&&mVdList.size()!=0){
+        if (mVdList != null && mVdList.size() != 0) {
             mVdList.clear();
         }
         for (int i = 0; i < photosList.size(); i++) {
@@ -234,9 +254,47 @@ public class ListFragment extends Fragment {
                 .playEnterAnim(true) // 是否开启进场动画，默认为true
                 .playExitAnim(true) // 是否开启退场动画，默认为true
                 .showIndex(true); // 是否显示图片索引，默认为true
-
         addListener();
 
     }
-
+    //删除图片
+    public void delete(final String id) {
+        //本地图片列表删除
+        for (Photo p : photosList) {
+            if (p.getId().equals(id)) {
+                photosList.remove(p);
+                break;
+            }
+        }
+        adapter.notifyDataSetChanged();
+        //数据库删除
+        new Thread() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                String deleteUrl = URL.deleteUrl;
+                RequestBody requestBody = new FormBody
+                        .Builder()
+                        .add("id", id)
+                        .build();
+                final Request request = new Request.Builder()
+                        .url(URL.deleteUrl)
+                        .post(requestBody)
+                        .build();
+                Response response = null;
+                //发起请求
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        makeToast("删除失败!");
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) {
+                        //获得返回response.body()
+                        makeToast("删除成功!");
+                    }
+                });
+            }
+        }.start();
+    }
 }

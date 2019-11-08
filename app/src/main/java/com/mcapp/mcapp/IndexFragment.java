@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +29,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.mcapp.mcapp.constant.URL;
+import com.mcapp.mcapp.model.Photo;
 import com.mcapp.mcapp.utils.SourceUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -204,6 +210,12 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
                     Looper.loop();
                     return;
                 }
+                //对图片进行压缩
+                Bitmap bitmap=BitmapFactory.decodeByteArray(fileBuf, 0, fileBuf.length);
+                bitmap=compressImage(bitmap);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                fileBuf = baos.toByteArray();
                 //上传文件域的请求体部分
                 RequestBody formBody = RequestBody
                         .create(fileBuf, MediaType.parse("image/jpeg"));
@@ -222,27 +234,58 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
                 try {
                     Response response = client.newCall(request).execute();
                     //更新列表数据
-                    SourceUtil.getImageList();
+//                    SourceUtil.getImageList();
+                    JSONObject jsonObject=new JSONObject(response.body().string());
+                    String id=jsonObject.getString("id");
+                    Photo p=new Photo();
+                    p.setImagesByte(fileBuf);
+                    p.setName("IMG"+id);
+                    p.setId(id);
+                    boolean flag=true;
                     FragmentManager fragmentManager=getActivity().getSupportFragmentManager();
                     for(int i=0;i<fragmentManager.getFragments().size();i++){
                         if(fragmentManager.getFragments().get(i).getArguments()!=null){
                             String a= (String) fragmentManager.getFragments().get(i).getArguments().get("text");
                             if(a=="列表"){
                                 ListFragment listFragment= (ListFragment) fragmentManager.getFragments().get(i);
-                                listFragment.updateData();
+                                listFragment.addPhoto(p);
+                                flag=false;
                             }
                         }
+                    }
+                    //如果列表frag没有渲染
+                    if(flag){
+                        SourceUtil.photos.add(p);
                     }
                     Looper.prepare();
                     Toast.makeText(getActivity(), "上传成功！", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }catch (JSONException e){
+                    e.printStackTrace();
                 }
 
 
             }
         }.start();
+    }
+
+    //图片压缩
+    public static Bitmap compressImage(Bitmap image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        int options = 100;
+        while ( baos.toByteArray().length / 1024>500) { //循环判断如果压缩后图片是否大于500kb,大于继续压缩
+            baos.reset();//重置baos即清空baos
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
+            options -= 10;//每次都减少10
+        }
+        //把压缩后的数据baos存放到ByteArrayInputStream中
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null); //把ByteArrayInputStream数据生成图片
+        return bitmap;
     }
 
     //打开相机、相册

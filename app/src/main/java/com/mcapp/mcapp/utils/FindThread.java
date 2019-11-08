@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.mcapp.mcapp.FaceFragment;
 import com.mcapp.mcapp.LastFragment;
 import com.mcapp.mcapp.MainActivity;
 import com.mcapp.mcapp.constant.URL;
@@ -40,11 +41,17 @@ public class FindThread extends Thread {
     private Integer findType;
     private byte[] imageData;
     private LastFragment lastFragment;
+    private FaceFragment faceFragment;
 
     public FindThread(byte[] imageData, Integer findType, LastFragment lastFragment) {
         this.imageData = imageData;
         this.findType = findType;
         this.lastFragment = lastFragment;
+    }
+    public FindThread(byte[] imageData, Integer findType, FaceFragment faceFragment) {
+        this.imageData = imageData;
+        this.findType = findType;
+        this.faceFragment = faceFragment;
     }
 
     public void run() {
@@ -87,7 +94,7 @@ public class FindThread extends Thread {
 //                    if (findType == 0) {
 //                        if (jsonObject.get("error_msg").equals("SUCCESS")) {
 //                            markFace(jsonObject);
-//                        } else if (jsonObject.get("error_msg").equals("pic not has face")) {
+//                        } else if (jsonObject.get("error_msg").equals("pic not has face_add")) {
 //                            lastFragment.makeToast("没有识别到人脸!");
 //                        } else if(jsonObject.get("error_msg").equals("timeout")){
 //                            lastFragment.makeToast("请求超时，请稍后重试！");
@@ -211,12 +218,12 @@ public class FindThread extends Thread {
                     if (findType == 0) {
                         if (jsonObject.get("error_msg").equals("SUCCESS")) {
                             markFace(jsonObject);
-                        } else if (jsonObject.get("error_msg").equals("pic not has face")) {
-                            lastFragment.makeToast("没有识别到人脸!");
+                        } else if (jsonObject.get("error_msg").equals("pic not has face_add")) {
+                            faceFragment.makeToast("没有识别到人脸!");
                         } else if(jsonObject.get("error_msg").equals("timeout")){
-                            lastFragment.makeToast("请求超时，请稍后重试！");
+                            faceFragment.makeToast("请求超时，请稍后重试！");
                         }else{
-                            lastFragment.makeToast("识别错误!");
+                            faceFragment.makeToast("识别错误!");
                         }
                     } else if (findType == 1) {
                         JSONArray results = jsonObject.getJSONArray("result");
@@ -282,7 +289,7 @@ public class FindThread extends Thread {
         for (int i = 0; i < location.length; i++) {
             canvas.drawRect((float) location[i][0], (float) location[i][1], (float) location[i][2], (float) location[i][3], paint);
         }
-        lastFragment.setBitmapImg(tempBitmap);
+        faceFragment.setBitmapImg(tempBitmap);
     }
 
     public void drawText(JSONArray results) throws JSONException {

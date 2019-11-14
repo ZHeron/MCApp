@@ -24,7 +24,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import okhttp3.Call;
@@ -40,16 +45,25 @@ import okhttp3.Response;
 public class FindThread extends Thread {
     private Integer findType;
     private byte[] imageData;
+    private byte[] imageData2;
     private LastFragment lastFragment;
     private FaceFragment faceFragment;
-
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     public FindThread(byte[] imageData, Integer findType, LastFragment lastFragment) {
         this.imageData = imageData;
         this.findType = findType;
         this.lastFragment = lastFragment;
     }
+
     public FindThread(byte[] imageData, Integer findType, FaceFragment faceFragment) {
         this.imageData = imageData;
+        this.findType = findType;
+        this.faceFragment = faceFragment;
+    }
+
+    public FindThread(byte[] imageData1, byte[] imageData2, Integer findType, FaceFragment faceFragment) {
+        this.imageData = imageData1;
+        this.imageData2 = imageData2;
         this.findType = findType;
         this.faceFragment = faceFragment;
     }
@@ -155,49 +169,71 @@ public class FindThread extends Thread {
 //        });
 
         String Token = "";
-        if (findType == 0) {
+        if (findType == 0 || findType == 3) {
             Token = SourceUtil.FaceToken;
         } else {
             Token = SourceUtil.OauthToken;
         }
         OkHttpClient client = new OkHttpClient();
-        Request request=null;
-        RequestBody requestBody=null;
+        Request request = null;
+        RequestBody requestBody = null;
         Response response = null;
-        if(findType==0){
-            String faceURL="https://aip.baidubce.com/rest/2.0/face/v3/detect"+ "?access_token=" + Token;
-            requestBody=new FormBody
+        if (findType == 0) {
+            String faceURL = "https://aip.baidubce.com/rest/2.0/face/v3/detect" + "?access_token=" + Token;
+            requestBody = new FormBody
                     .Builder()
-                    .add("image_type","BASE64")
-                    .add("image", Base64.encodeToString(imageData,Base64.DEFAULT))
-                    .add("max_face_num","5")
+                    .add("image_type", "BASE64")
+                    .add("image", Base64.encodeToString(imageData, Base64.DEFAULT))
+                    .add("max_face_num", "5")
                     .build();
             request = new Request.Builder()
                     .url(faceURL)
-                    .addHeader("Content-Type","application/json")
+                    .addHeader("Content-Type", "application/json")
                     .post(requestBody)
                     .build();
-        }else if(findType==1){
-            String faceURL="https://aip.baidubce.com/rest/2.0/image-classify/v1/animal"+ "?access_token=" + Token;
-            requestBody=new FormBody
+        } else if (findType == 1) {
+            String faceURL = "https://aip.baidubce.com/rest/2.0/image-classify/v1/animal" + "?access_token=" + Token;
+            requestBody = new FormBody
                     .Builder()
-                    .add("image", Base64.encodeToString(imageData,Base64.DEFAULT))
-                    .add("top_num","3")
+                    .add("image", Base64.encodeToString(imageData, Base64.DEFAULT))
+                    .add("top_num", "3")
                     .build();
             request = new Request.Builder()
                     .url(faceURL)
-                    .addHeader("Content-Type","application/x-www-form-urlencoded")
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .post(requestBody)
                     .build();
-        }else if(findType==2){
-            String faceURL="https://aip.baidubce.com/rest/2.0/image-classify/v1/plant"+ "?access_token=" + Token;
-            requestBody=new FormBody
+        } else if (findType == 2) {
+            String faceURL = "https://aip.baidubce.com/rest/2.0/image-classify/v1/plant" + "?access_token=" + Token;
+            requestBody = new FormBody
                     .Builder()
-                    .add("image", Base64.encodeToString(imageData,Base64.DEFAULT))
+                    .add("image", Base64.encodeToString(imageData, Base64.DEFAULT))
                     .build();
             request = new Request.Builder()
                     .url(faceURL)
-                    .addHeader("Content-Type","application/x-www-form-urlencoded")
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .post(requestBody)
+                    .build();
+        } else if (findType == 3) {
+            String faceURL = "https://aip.baidubce.com/rest/2.0/face/v3/match" + "?access_token=" + Token;
+
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject1 = new JSONObject();
+            JSONObject jsonObject2 = new JSONObject();
+            try {
+                jsonObject1.put("image", Base64.encodeToString(imageData, Base64.DEFAULT));
+                jsonObject1.put("image_type", "BASE64");
+                jsonArray.put(jsonObject1);
+                jsonObject2.put("image", Base64.encodeToString(imageData2, Base64.DEFAULT));
+                jsonObject2.put("image_type", "BASE64");
+                jsonArray.put(jsonObject2);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            requestBody=RequestBody.create(JSON,jsonArray.toString());
+            request = new Request.Builder()
+                    .url(faceURL)
+                    .addHeader("Content-Type", "application/json")
                     .post(requestBody)
                     .build();
         }
@@ -220,29 +256,38 @@ public class FindThread extends Thread {
                             markFace(jsonObject);
                         } else if (jsonObject.get("error_msg").equals("pic not has face")) {
                             faceFragment.makeToast("没有识别到人脸!");
-                        } else if(jsonObject.get("error_msg").equals("timeout")){
+                        } else if (jsonObject.get("error_msg").equals("timeout")) {
                             faceFragment.makeToast("请求超时，请稍后重试！");
-                        }else{
+                        } else {
                             faceFragment.makeToast("识别错误!");
                         }
                     } else if (findType == 1) {
                         JSONArray results = jsonObject.getJSONArray("result");
-                        if(results.length()==0){
+                        if (results.length() == 0) {
                             lastFragment.makeToast("请求超时，请稍后重试！");
-                        }else if (results.getJSONObject(0).getString("name").equals("非动物")) {
+                        } else if (results.getJSONObject(0).getString("name").equals("非动物")) {
                             lastFragment.makeToast("非动物!");
-                        }else
-                        {
+                        } else {
                             drawText(results);
                         }
                     } else if (findType == 2) {
                         JSONArray results = jsonObject.getJSONArray("result");
-                        if(results.length()==0){
+                        if (results.length() == 0) {
                             lastFragment.makeToast("请求超时，请稍后重试！");
-                        }else if (results.getJSONObject(0).getString("name").equals("非植物")) {
+                        } else if (results.getJSONObject(0).getString("name").equals("非植物")) {
                             lastFragment.makeToast("非植物!");
                         } else {
                             drawText(results);
+                        }
+                    }if(findType == 3){
+                        if (jsonObject.get("error_msg").equals("SUCCESS")) {
+                            markScore(jsonObject);
+                        } else if (jsonObject.get("error_msg").equals("pic not has face")) {
+                            faceFragment.makeToast("没有识别到人脸!");
+                        } else if (jsonObject.get("error_msg").equals("timeout")) {
+                            faceFragment.makeToast("请求超时，请稍后重试！");
+                        } else {
+                            faceFragment.makeToast("识别错误!");
                         }
                     }
                 } catch (JSONException e) {
@@ -253,6 +298,16 @@ public class FindThread extends Thread {
             }
         });
 
+
+    }
+
+    public void markScore(JSONObject jsonObject) throws JSONException {
+//        Log.d("人脸检测", jsonObject.toString());
+        JSONObject res = jsonObject.getJSONObject("result");
+        if (res != null) {
+            double score = res.getDouble("score");
+            faceFragment.setScore(score);
+        }
 
     }
 

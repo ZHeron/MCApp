@@ -155,13 +155,13 @@ public class ListFragment extends Fragment {
             }
         });
 
-        adapter.setOnItemLongClickCallback(new ImageAdapter.OnItemLongClickCallback() {
-            @Override
-            public void onItemLongClick(int position, ImageView view) {
-                MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.jump(photosList.get(position),"last");
-            }
-        });
+//        adapter.setOnItemLongClickCallback(new ImageAdapter.OnItemLongClickCallback() {
+//            @Override
+//            public void onItemLongClick(int position, ImageView view) {
+//                MainActivity mainActivity = (MainActivity) getActivity();
+//                mainActivity.jump(photosList.get(position),"last");
+//            }
+//        });
 
         recyclerView.setAdapter(adapter);
         linearManager.scrollToPositionWithOffset(0, 0);

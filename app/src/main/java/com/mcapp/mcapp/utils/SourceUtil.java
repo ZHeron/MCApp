@@ -27,6 +27,8 @@ public class SourceUtil {
     public static List<String> groups = new ArrayList<>() ;
     public static String FaceToken;
     public static String OauthToken;
+    public static boolean show=false;
+    public static byte[] imagesByte;
     public static void getImageList() {
 
         new Thread() {

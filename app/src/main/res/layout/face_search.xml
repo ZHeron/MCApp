@@ -14,13 +14,14 @@
          android:text="组号："
          android:textSize="23sp"
          android:layout_weight="2"></TextView>
-        <EditText
+        <Spinner
             android:id="@+id/groupId2"
             android:layout_width="0dp"
             android:textSize="23dp"
             android:hint="多个组号,隔开"
             android:layout_height="wrap_content"
-            android:layout_weight="5"></EditText>
+            android:layout_weight="5">       <!--通过entries属性指定一个下拉列表项，是一个数组资源-->
+        </Spinner>
     </LinearLayout>
 
     <LinearLayout

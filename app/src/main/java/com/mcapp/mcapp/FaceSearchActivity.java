@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +22,7 @@ import com.mcapp.mcapp.widget.EditableSpinner;
 import java.util.List;
 
 public class FaceSearchActivity extends AppCompatActivity implements View.OnClickListener{
-    private EditText groupIdEdit;
+    private Spinner groupIdSpinner;
     private EditText userIdEdit;
     private EditText userInfoEdit;
     private EditText userScoreEdit;
@@ -36,7 +37,7 @@ public class FaceSearchActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.face_search);
-        groupIdEdit=findViewById(R.id.groupId2);
+        groupIdSpinner=findViewById(R.id.groupId2);
         userIdEdit=findViewById(R.id.userId2);
         userInfoEdit=findViewById(R.id.userInfo2);
         userScoreEdit=findViewById(R.id.userScore2);
@@ -53,13 +54,15 @@ public class FaceSearchActivity extends AppCompatActivity implements View.OnClic
                 }
             }
         }
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, SourceUtil.groups);  //创建一个数组适配器
+        groupIdSpinner.setAdapter(adapter);
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.btn_confirm2:
-                groupId=groupIdEdit.getText().toString();
+                groupId=groupIdSpinner.getSelectedItem().toString();
                 FaceApp.searchFaceWithBase64(imageBase64,groupId,this);
                 break;
             case R.id.btn_cancel2:

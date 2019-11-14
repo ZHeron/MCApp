@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MCApp</string>
+    <string name="app_name">Face--</string>
     <item type="id" name="face_first"></item>
     <item type="id" name="face_second"></item>
     <item type="id" name="last_first"></item>
